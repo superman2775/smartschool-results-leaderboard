@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Smartschool Grades Panel",
+  "name": "Smartschool Results Leaderboard",
   "version": "1.0.0",
-  "description": "Puntenpanel in de Smartschool topnav.",
+  "description": "Compete against other Smartschool users to get the best grades!",
   "permissions": ["storage"],
   "host_permissions": [
     "https://*.smartschool.be/*"
