@@ -626,7 +626,7 @@ function createPanelBelowTopnav() {
     const btn = document.createElement("button");
     btn.className = "js-btn-grades topnav__btn";
     btn.type = "button";
-    btn.textContent = "Punten";
+    btn.textContent = "Results";
     btn.setAttribute("aria-haspopup", "true");
     btn.setAttribute("aria-expanded", "false");
 
