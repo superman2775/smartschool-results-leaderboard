@@ -190,7 +190,7 @@
       return data || [];
     }
 
-    function renderMultiLeaderboard({ payload, weekBoard, monthBoard, yearBoard, allBoard, selfName, selfScore }) {
+    function renderMultiLeaderboard({ payload, weekBoard, monthBoard, yearBoard, selfName, selfScore }) {
       const root = document.getElementById("app");
       root.innerHTML = "";
 
@@ -209,8 +209,7 @@
       const tabDefs = [
         { id: "week", label: "Deze week", data: weekBoard },
         { id: "month", label: "Deze maand", data: monthBoard },
-        { id: "year", label: "Dit schooljaar", data: yearBoard },
-        { id: "all", label: "All‑time", data: allBoard }
+        { id: "year", label: "Dit schooljaar", data: yearBoard }
       ];
 
       const listContainer = document.createElement("div");
@@ -287,19 +286,17 @@
       const weekStart = startOfWeek(now);
       const monthStart = startOfMonth(now);
 
-      const [weekBoard, monthBoard, yearBoard, allBoard] = await Promise.all([
+      const [weekBoard, monthBoard, yearBoard] = await Promise.all([
         fetchLeaderboardRange({ schoolYear, from: weekStart, to: now }),
         fetchLeaderboardRange({ schoolYear, from: monthStart, to: now }),
-        fetchLeaderboardRange({ schoolYear, from: null, to: null }),
-        fetchLeaderboardRange({ schoolYear: null, from: null, to: null })
+        fetchLeaderboardRange({ schoolYear, from: null, to: now })
       ]);
-
+      
       renderMultiLeaderboard({
         payload,
         weekBoard,
         monthBoard,
         yearBoard,
-        allBoard,
         selfName: displayName,
         selfScore: score
       });
