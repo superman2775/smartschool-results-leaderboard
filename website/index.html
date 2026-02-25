@@ -26,6 +26,23 @@
       opacity: 0.8;
       margin-bottom: 8px;
     }
+    .tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+    .tabs button {
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.3);
+      background: transparent;
+      color: #fff;
+      cursor: pointer;
+    }
+    .tabs button.active {
+      background: rgba(255,255,255,0.15);
+    }
     ol {
       margin: 0;
       padding-left: 16px;
@@ -55,16 +72,11 @@
   <!-- Supabase client -->
   <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script>
-    // VERVANG DIT door jouw Supabase project gegevens
     const SUPABASE_URL = "https://iqsshtqyhmqqttsxroiv.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlxc3NodHF5aG1xcXR0c3hyb2l2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5ODM1NDAsImV4cCI6MjA4NzU1OTU0MH0.z9t6ErFXoHOjMG22Z-EIvStBh4ysXXoG1MyZTdycCtA";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    // optioneel: origin-check van de parent
     const EXPECTED_PARENT_ORIGIN = "https://martinusasse.smartschool.be"; // of "*" tijdens debug
-  </script>
 
-  <script>
     function generateRandomName() {
       const adjectives = ["Snelle", "Slimme", "Gekke", "Stille", "Magische", "Sterke", "Blije", "Stoere", "Luidruchtige"];
       const animals = ["Panda", "Leeuw", "Uil", "Vos", "Dolfijn", "Olifant", "Havik", "Tijger", "Wolf"];
@@ -112,15 +124,35 @@
       return data;
     }
 
-    async function fetchLeaderboard(schoolYear) {
+    function startOfWeek(d) {
+      const date = new Date(d);
+      const day = date.getDay(); // 0 = zondag, 1 = maandag
+      const diff = (day === 0 ? -6 : 1) - day; // maandag als start
+      date.setHours(0, 0, 0, 0);
+      date.setDate(date.getDate() + diff);
+      return date;
+    }
+
+    function startOfMonth(d) {
+      const date = new Date(d);
+      return new Date(date.getFullYear(), date.getMonth(), 1, 0, 0, 0, 0);
+    }
+
+    async function fetchLeaderboardRange({ schoolYear, from, to }) {
       let query = supabaseClient
         .from("leaderboard_entries")
-        .select("display_name, score")
+        .select("display_name, score, created_at")
         .order("score", { ascending: false })
         .limit(10);
 
       if (schoolYear) {
         query = query.eq("school_year", schoolYear);
+      }
+      if (from) {
+        query = query.gte("created_at", from.toISOString());
+      }
+      if (to) {
+        query = query.lte("created_at", to.toISOString());
       }
 
       const { data, error } = await query;
@@ -131,7 +163,7 @@
       return data || [];
     }
 
-    function renderLeaderboard({ payload, leaderboard, selfName, selfScore }) {
+    function renderMultiLeaderboard({ payload, weekBoard, monthBoard, yearBoard, allBoard, selfName, selfScore }) {
       const root = document.getElementById("app");
       root.innerHTML = "";
 
@@ -144,36 +176,74 @@
       subtitle.textContent = `Jouw score: ${selfScore.toFixed(2)}% (${selfName})`;
       root.appendChild(subtitle);
 
-      if (!leaderboard.length) {
-        const p = document.createElement("p");
-        p.className = "empty-state";
-        p.textContent = "Nog geen spelers op het leaderboard.";
-        root.appendChild(p);
-        return;
+      const tabs = document.createElement("div");
+      tabs.className = "tabs";
+
+      const tabDefs = [
+        { id: "week", label: "Deze week", data: weekBoard },
+        { id: "month", label: "Deze maand", data: monthBoard },
+        { id: "year", label: "Dit schooljaar", data: yearBoard },
+        { id: "all", label: "All‑time", data: allBoard }
+      ];
+
+      const listContainer = document.createElement("div");
+
+      function renderListFor(tabId) {
+        const tabDef = tabDefs.find(t => t.id === tabId);
+        const board = tabDef.data || [];
+
+        listContainer.innerHTML = "";
+
+        if (!board.length) {
+          const p = document.createElement("p");
+          p.className = "empty-state";
+          p.textContent = "Nog geen spelers in dit leaderboard.";
+          listContainer.appendChild(p);
+          return;
+        }
+
+        const list = document.createElement("ol");
+        board.forEach(entry => {
+          const li = document.createElement("li");
+
+          const nameSpan = document.createElement("span");
+          nameSpan.className = "course-name";
+          nameSpan.textContent = entry.display_name;
+
+          const scoreSpan = document.createElement("span");
+          scoreSpan.className = "course-score";
+          scoreSpan.textContent = `${Number(entry.score).toFixed(2)}%`;
+
+          li.appendChild(nameSpan);
+          li.appendChild(scoreSpan);
+          list.appendChild(li);
+        });
+
+        listContainer.appendChild(list);
       }
 
-      const list = document.createElement("ol");
-      leaderboard.forEach(entry => {
-        const li = document.createElement("li");
-
-        const nameSpan = document.createElement("span");
-        nameSpan.className = "course-name";
-        nameSpan.textContent = entry.display_name;
-
-        const scoreSpan = document.createElement("span");
-        scoreSpan.className = "course-score";
-        scoreSpan.textContent = `${Number(entry.score).toFixed(2)}%`;
-
-        li.appendChild(nameSpan);
-        li.appendChild(scoreSpan);
-        list.appendChild(li);
+      tabDefs.forEach((tabDef, index) => {
+        const btn = document.createElement("button");
+        btn.textContent = tabDef.label;
+        btn.addEventListener("click", () => {
+          Array.from(tabs.children).forEach(child => child.classList.remove("active"));
+          btn.classList.add("active");
+          renderListFor(tabDef.id);
+        });
+        if (tabDef.id === "year") {
+          btn.classList.add("active");
+        }
+        tabs.appendChild(btn);
       });
 
-      root.appendChild(list);
+      root.appendChild(tabs);
+      root.appendChild(listContainer);
+
+      // default: Dit schooljaar
+      renderListFor("year");
     }
 
     window.addEventListener("message", async (event) => {
-      // tijdens debug kun je dit uitcommenten
       // if (event.origin !== EXPECTED_PARENT_ORIGIN) return;
 
       const data = event.data;
@@ -186,9 +256,27 @@
       const schoolYear = payload.yearId || null;
 
       await upsertScore({ userId, displayName, score, schoolYear });
-      const leaderboard = await fetchLeaderboard(schoolYear);
 
-      renderLeaderboard({ payload, leaderboard, selfName: displayName, selfScore: score });
+      const now = new Date();
+      const weekStart = startOfWeek(now);
+      const monthStart = startOfMonth(now);
+
+      const [weekBoard, monthBoard, yearBoard, allBoard] = await Promise.all([
+        fetchLeaderboardRange({ schoolYear, from: weekStart, to: now }),
+        fetchLeaderboardRange({ schoolYear, from: monthStart, to: now }),
+        fetchLeaderboardRange({ schoolYear, from: null, to: null }),
+        fetchLeaderboardRange({ schoolYear: null, from: null, to: null })
+      ]);
+
+      renderMultiLeaderboard({
+        payload,
+        weekBoard,
+        monthBoard,
+        yearBoard,
+        allBoard,
+        selfName: displayName,
+        selfScore: score
+      });
     });
   </script>
 </body>
