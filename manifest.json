@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "Smartschool Grades Panel",
+  "version": "1.0.0",
+  "description": "Puntenpanel in de Smartschool topnav.",
+  "permissions": ["storage"],
+  "host_permissions": [
+    "https://*.smartschool.be/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://*.smartschool.be/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
