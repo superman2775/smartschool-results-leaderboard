@@ -30,6 +30,7 @@
       display: flex;
       gap: 6px;
       margin-bottom: 6px;
+      flex-wrap: wrap;
     }
     .tabs button {
       font-size: 0.75rem;
@@ -42,6 +43,30 @@
     }
     .tabs button.active {
       background: rgba(255,255,255,0.15);
+    }
+    .rename-row {
+      margin-bottom: 6px;
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .rename-row input {
+      font-size: 0.75rem;
+      padding: 3px 6px;
+      border-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.3);
+      background: #050815;
+      color: #f5f5f5;
+    }
+    .rename-row button {
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      cursor: pointer;
     }
     ol {
       margin: 0;
@@ -124,6 +149,30 @@
       return data;
     }
 
+    async function updateDisplayName(newName) {
+      const userId = localStorage.getItem("ss_leaderboard_user_id");
+      if (!userId) {
+        console.error("Geen lokale userId gevonden");
+        return;
+      }
+      const trimmed = (newName || "").trim();
+      if (!trimmed) return;
+
+      const { data, error } = await supabaseClient
+        .from("leaderboard_entries")
+        .update({ display_name: trimmed })
+        .eq("instance_id", userId)
+        .select();
+
+      if (error) {
+        console.error("Supabase update error:", error);
+        return;
+      }
+      localStorage.setItem("ss_leaderboard_display_name", trimmed);
+      console.log("Naam geüpdatet naar:", trimmed, data);
+      return trimmed;
+    }
+
     function startOfWeek(d) {
       const date = new Date(d);
       const day = date.getDay(); // 0 = zondag, 1 = maandag
@@ -176,6 +225,27 @@
       subtitle.textContent = `Jouw score: ${selfScore.toFixed(2)}% (${selfName})`;
       root.appendChild(subtitle);
 
+      const renameRow = document.createElement("div");
+      renameRow.className = "rename-row";
+      const nameInput = document.createElement("input");
+      nameInput.type = "text";
+      nameInput.placeholder = "Nieuwe naam…";
+      nameInput.value = selfName;
+
+      const renameBtn = document.createElement("button");
+      renameBtn.textContent = "Naam opslaan";
+      renameBtn.addEventListener("click", async () => {
+        const newName = nameInput.value;
+        const updated = await updateDisplayName(newName);
+        if (updated) {
+          subtitle.textContent = `Jouw score: ${selfScore.toFixed(2)}% (${updated})`;
+        }
+      });
+
+      renameRow.appendChild(nameInput);
+      renameRow.appendChild(renameBtn);
+      root.appendChild(renameRow);
+
       const tabs = document.createElement("div");
       tabs.className = "tabs";
 
@@ -222,7 +292,7 @@
         listContainer.appendChild(list);
       }
 
-      tabDefs.forEach((tabDef, index) => {
+      tabDefs.forEach(tabDef => {
         const btn = document.createElement("button");
         btn.textContent = tabDef.label;
         btn.addEventListener("click", () => {
@@ -239,7 +309,6 @@
       root.appendChild(tabs);
       root.appendChild(listContainer);
 
-      // default: Dit schooljaar
       renderListFor("year");
     }
 
