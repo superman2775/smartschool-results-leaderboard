@@ -52,17 +52,86 @@
     <p class="empty-state">Wacht op gegevens van de Smartschool‑extensie…</p>
   </div>
 
+  <!-- Supabase client -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script>
-    const EXPECTED_ORIGIN = "https://superman2775.github.io/*"; // mag ook "*" zijn als je wilt testen
+    // VERVANG DIT door jouw Supabase project gegevens
+    const SUPABASE_URL = "https://iqsshtqyhmqqttsxroiv.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlxc3NodHF5aG1xcXR0c3hyb2l2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5ODM1NDAsImV4cCI6MjA4NzU1OTU0MH0.z9t6ErFXoHOjMG22Z-EIvStBh4ysXXoG1MyZTdycCtA";
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    window.addEventListener("message", (event) => {
-      // tijdens debuggen kun je hieronder tijdelijk EXPECTED_ORIGIN overslaan
-      // if (event.origin !== EXPECTED_ORIGIN) return;
+    // optioneel: origin-check van de parent
+    const EXPECTED_PARENT_ORIGIN = "https://martinusasse.smartschool.be"; // of "*" tijdens debug
+  </script>
 
-      const data = event.data;
-      if (!data || data.type !== "smartschool-leaderboard-data") return;
+  <script>
+    function generateRandomName() {
+      const adjectives = ["Snelle", "Slimme", "Gekke", "Stille", "Magische", "Sterke", "Blije", "Stoere", "Luidruchtige"];
+      const animals = ["Panda", "Leeuw", "Uil", "Vos", "Dolfijn", "Olifant", "Havik", "Tijger", "Wolf"];
+      const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
+      const animal = animals[Math.floor(Math.random() * animals.length)];
+      const num = Math.floor(Math.random() * 999);
+      return `${adj}${animal}${num}`;
+    }
 
-      const payload = data.payload;
+    function getOrCreateLocalUser() {
+      let userId = localStorage.getItem("ss_leaderboard_user_id");
+      let displayName = localStorage.getItem("ss_leaderboard_display_name");
+      if (!userId) {
+        if (window.crypto && crypto.randomUUID) {
+          userId = crypto.randomUUID();
+        } else {
+          userId = String(Date.now()) + Math.random().toString(16).slice(2);
+        }
+        localStorage.setItem("ss_leaderboard_user_id", userId);
+      }
+      if (!displayName) {
+        displayName = generateRandomName();
+        localStorage.setItem("ss_leaderboard_display_name", displayName);
+      }
+      return { userId, displayName };
+    }
+
+    async function upsertScore({ userId, displayName, score, schoolYear }) {
+      const { data, error } = await supabaseClient
+        .from("leaderboard_entries")
+        .upsert(
+          {
+            instance_id: userId,
+            display_name: displayName,
+            score,
+            school_year: schoolYear
+          },
+          { onConflict: "instance_id" }
+        )
+        .select();
+
+      if (error) {
+        console.error("Supabase upsert error:", error);
+      }
+      return data;
+    }
+
+    async function fetchLeaderboard(schoolYear) {
+      let query = supabaseClient
+        .from("leaderboard_entries")
+        .select("display_name, score")
+        .order("score", { ascending: false })
+        .limit(10);
+
+      if (schoolYear) {
+        query = query.eq("school_year", schoolYear);
+      }
+
+      const { data, error } = await query;
+      if (error) {
+        console.error("Supabase fetch error:", error);
+        return [];
+      }
+      return data || [];
+    }
+
+    function renderLeaderboard({ payload, leaderboard, selfName, selfScore }) {
       const root = document.getElementById("app");
       root.innerHTML = "";
 
@@ -72,32 +141,28 @@
 
       const subtitle = document.createElement("div");
       subtitle.className = "subtitle";
-      subtitle.textContent = `Globaal gemiddelde: ${payload.globalAvg.toFixed(2)}%`;
+      subtitle.textContent = `Jouw score: ${selfScore.toFixed(2)}% (${selfName})`;
       root.appendChild(subtitle);
 
-      const courses = (payload.courses || [])
-        .slice()
-        .sort((a, b) => b.avgPercent - a.avgPercent);
-
-      if (!courses.length) {
+      if (!leaderboard.length) {
         const p = document.createElement("p");
         p.className = "empty-state";
-        p.textContent = "Geen vakken gevonden in de dataset.";
+        p.textContent = "Nog geen spelers op het leaderboard.";
         root.appendChild(p);
         return;
       }
 
       const list = document.createElement("ol");
-      courses.slice(0, 10).forEach(c => {
+      leaderboard.forEach(entry => {
         const li = document.createElement("li");
 
         const nameSpan = document.createElement("span");
         nameSpan.className = "course-name";
-        nameSpan.textContent = c.name;
+        nameSpan.textContent = entry.display_name;
 
         const scoreSpan = document.createElement("span");
         scoreSpan.className = "course-score";
-        scoreSpan.textContent = `${c.avgPercent.toFixed(2)}%`;
+        scoreSpan.textContent = `${Number(entry.score).toFixed(2)}%`;
 
         li.appendChild(nameSpan);
         li.appendChild(scoreSpan);
@@ -105,6 +170,25 @@
       });
 
       root.appendChild(list);
+    }
+
+    window.addEventListener("message", async (event) => {
+      // tijdens debug kun je dit uitcommenten
+      // if (event.origin !== EXPECTED_PARENT_ORIGIN) return;
+
+      const data = event.data;
+      if (!data || data.type !== "smartschool-leaderboard-data") return;
+
+      const payload = data.payload; // { yearId, yearLabel, globalAvg, courses }
+
+      const { userId, displayName } = getOrCreateLocalUser();
+      const score = Number(payload.globalAvg.toFixed(2));
+      const schoolYear = payload.yearId || null;
+
+      await upsertScore({ userId, displayName, score, schoolYear });
+      const leaderboard = await fetchLeaderboard(schoolYear);
+
+      renderLeaderboard({ payload, leaderboard, selfName: displayName, selfScore: score });
     });
   </script>
 </body>
