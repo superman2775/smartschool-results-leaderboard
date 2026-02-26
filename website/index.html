@@ -90,8 +90,25 @@
     const EXPECTED_PARENT_ORIGIN = "https://martinusasse.smartschool.be"; // of "*" tijdens debug
 
     function generateRandomName() {
-      const adjectives = ["Snelle", "Slimme", "Gekke", "Stille", "Magische", "Sterke", "Blije", "Stoere", "Luidruchtige"];
-      const animals = ["Panda", "Leeuw", "Uil", "Vos", "Dolfijn", "Olifant", "Havik", "Tijger", "Wolf"];
+    const adjectives = [
+        "Snelle", "Slimme", "Gekke", "Stille", "Magische", "Sterke", "Blije", "Stoere", "Luidruchtige",
+        "Sappige", "Luie", "Verwarde", "Dansende", "Chagrijnige", "Epische", "Knettergekke",
+        "Vliegende", "Machtige", "Knorrige", "Kleverige", "Grappige", "Slaaploze", "Bezige",
+        "Zingende", "Onzichtbare", "Hyperactieve", "Koek-etende", "Verdwaalde", "Snotterende",
+        "Tijdreizende", "Panikerende", "Technische", "Digitale", "Sarcastische", "Rommelige",
+        "Vergeetachtige", "Overdreven", "Koffieverslaafde", "Droomachtige", "Bezopen", "Onhandige"
+      ];
+      const animals = [
+        "Panda", "Leeuw", "Uil", "Vos", "Dolfijn", "Olifant", "Tijger", "Wolf", "Egel", "Aap",
+        "Eend", "Kat", "Krokodil", "Pinguïn", "Beer", "Koe", "Wasbeer", "Giraffe", "Zebra",
+        
+        "Koelkast", "Broodrooster", "Pizza", "Appeltaart", "Theepot", "Koffiekopje", "Sok", "Stoel",
+        "Toilet", "Laptop", "Kussen", "Kaars", "Emmer", "Fiets", "Tandenborstel", "Banaan",
+        "Spaghetti", "Lamp", "Kast", "Telefoon", "Gamecontroller", "Kaasblokje", "Wifi-router",
+        
+        "Dokter", "Piratenkapitein", "Tovenaar", "Ninja", "Programmeur", "Dromer", "DJ", "Ridder",
+        "Zwerver", "Student", "Bakker", "Barista", "Kabouter", "Superheld", "Cowboy", "Agent"
+      ];
       const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
       const animal = animals[Math.floor(Math.random() * animals.length)];
       const num = Math.floor(Math.random() * 999);
