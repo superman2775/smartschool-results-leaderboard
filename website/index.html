@@ -13,9 +13,23 @@
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: #050815;
       color: #f5f5f5;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .page {
+      width: 100%;
+      max-width: 1000px;
+      padding: 16px 16px 24px;
+      box-sizing: border-box;
     }
     .container {
       padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(5, 8, 21, 0.9);
+      border: 1px solid rgba(255,255,255,0.08);
+      margin-bottom: 12px;
     }
     h2 {
       margin: 0 0 6px;
@@ -63,23 +77,45 @@
       font-size: 0.85rem;
       opacity: 0.8;
     }
+
+    /* Newsfeed */
+    .news-item {
+      font-size: 0.8rem;
+      margin-bottom: 4px;
+    }
+    .news-item time {
+      opacity: 0.6;
+      margin-right: 6px;
+      font-size: 0.75rem;
+    }
   </style>
 </head>
 <body>
-  <div class="container" id="app">
-    <p class="empty-state">Wacht op gegevens van de Smartschool‑extensie…</p>
-  </div>
-  <div class="container">
-    <p style="font-size:0.75rem; opacity:0.8; margin-top:4px;">
-      <a href="https://github.com/superman2775/smartschool-results-leaderboard/wiki/Privacy-Policy"
-         target="_blank"
-         rel="noopener noreferrer"
-         style="color:#9fc5ff; text-decoration:underline;">
-        Privacy Policy / Privacyverklaring
-      </a>
-    </p>
-  </div>
+  <div class="page">
+    <div class="container" id="app">
+      <p class="empty-state">Wacht op gegevens van de Smartschool‑extensie…</p>
+    </div>
 
+    <!-- Newsfeed -->
+    <div class="container" id="news">
+      <h2>Newsfeed</h2>
+      <div class="subtitle">Laatste updates & events</div>
+      <div id="news-list">
+        <p class="empty-state">Nog geen nieuws. Check later opnieuw.</p>
+      </div>
+    </div>
+
+    <div class="container">
+      <p style="font-size:0.75rem; opacity:0.8; margin-top:4px;">
+        <a href="https://github.com/superman2775/smartschool-results-leaderboard/wiki/Privacy-Policy"
+           target="_blank"
+           rel="noopener noreferrer"
+           style="color:#9fc5ff; text-decoration:underline;">
+          Privacy Policy / Privacyverklaring
+        </a>
+      </p>
+    </div>
+  </div>
 
   <!-- Supabase client -->
   <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -329,6 +365,46 @@
         selfScore: score
       });
     });
+    
+    const NEWS_ITEMS = [
+      {
+        date: "2026-02-25",
+        text: "Nieuw: week- en maandleaderboards berekenen nu op basis van al je tests in die periode."
+      },
+      {
+        date: "2026-02-24",
+        text: "Random nicknames toegevoegd, zodat je anoniem kunt flexen."
+      },
+      {
+        date: "2026-02-23",
+        text: "Eerste publieke versie van het Smartschool Leaderboard is live."
+      }
+    ];
+
+    function renderNewsfeed() {
+      const list = document.getElementById("news-list");
+      list.innerHTML = "";
+      if (!NEWS_ITEMS.length) {
+        const p = document.createElement("p");
+        p.className = "empty-state";
+        p.textContent = "Nog geen nieuws. Check later opnieuw.";
+        list.appendChild(p);
+        return;
+      }
+      NEWS_ITEMS.forEach(item => {
+        const p = document.createElement("p");
+        p.className = "news-item";
+        const t = document.createElement("time");
+        t.textContent = item.date;
+        p.appendChild(t);
+        const span = document.createElement("span");
+        span.textContent = item.text;
+        p.appendChild(span);
+        list.appendChild(p);
+      });
+    }
+
+    renderNewsfeed();
   </script>
 </body>
 </html>
