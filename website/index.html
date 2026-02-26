@@ -87,7 +87,7 @@
     const SUPABASE_URL = "https://iqsshtqyhmqqttsxroiv.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlxc3NodHF5aG1xcXR0c3hyb2l2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5ODM1NDAsImV4cCI6MjA4NzU1OTU0MH0.z9t6ErFXoHOjMG22Z-EIvStBh4ysXXoG1MyZTdycCtA";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    const EXPECTED_PARENT_ORIGIN = "https://martinusasse.smartschool.be"; // of "*" tijdens debug
+    const EXPECTED_PARENT_ORIGIN = "https://*.smartschool.be"; 
 
     function generateRandomName() {
     const adjectives = [
