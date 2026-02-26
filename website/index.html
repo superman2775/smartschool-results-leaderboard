@@ -40,42 +40,119 @@
       opacity: 0.8;
       margin-bottom: 8px;
     }
-    .tabs {
+
+    /* Leaderboard layout */
+    #app {
+      padding: 14px 16px;
+    }
+
+    .leaderboard-card {
+      border-radius: 16px;
+      padding: 14px 16px;
+      background: radial-gradient(circle at top, rgba(79, 70, 229, 0.2), transparent 55%),
+                  rgba(9, 9, 20, 0.9);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .leaderboard-header {
       display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .leaderboard-title {
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .leaderboard-subtitle {
+      font-size: 0.8rem;
+      opacity: 0.8;
+    }
+
+    .tabs {
+      display: inline-flex;
       gap: 6px;
-      margin-bottom: 6px;
-      flex-wrap: wrap;
+      margin: 4px 0 10px;
+      padding: 4px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(148, 163, 184, 0.4);
     }
     .tabs button {
       font-size: 0.75rem;
-      padding: 3px 8px;
+      padding: 4px 10px;
       border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.3);
+      border: none;
       background: transparent;
-      color: #fff;
+      color: #e5e7eb;
       cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+    }
+    .tabs button:hover {
+      background: rgba(148, 163, 184, 0.25);
+      transform: translateY(-1px);
     }
     .tabs button.active {
-      background: rgba(255,255,255,0.15);
+      background: #6366f1;
+      color: #f9fafb;
     }
-    ol {
+
+    .leaderboard-list {
       margin: 0;
-      padding-left: 16px;
+      padding: 0;
+      list-style: none;
       font-size: 0.8rem;
     }
-    li {
-      margin-bottom: 4px;
+
+    .leaderboard-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      margin-bottom: 6px;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
     }
-    .course-name {
+
+    .leaderboard-row:hover {
+      background: rgba(30, 64, 175, 0.7);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.8);
+    }
+
+    .leaderboard-rank {
       font-weight: 600;
+      color: #9ca3af;
+      width: 1.5rem;
+      text-align: center;
     }
-    .course-score {
-      margin-left: 6px;
-      opacity: 0.9;
+
+    .leaderboard-name {
+      font-weight: 500;
+      color: #e5e7eb;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
+
+    .leaderboard-score {
+      font-variant-numeric: tabular-nums;
+      color: #bbf7d0;
+      font-weight: 500;
+    }
+
     .empty-state {
       font-size: 0.85rem;
       opacity: 0.8;
+      padding: 4px 2px;
     }
 
     /* Newsfeed */
@@ -124,8 +201,6 @@
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlxc3NodHF5aG1xcXR0c3hyb2l2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5ODM1NDAsImV4cCI6MjA4NzU1OTU0MH0.z9t6ErFXoHOjMG22Z-EIvStBh4ysXXoG1MyZTdycCtA";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const EXPECTED_PARENT_ORIGIN = "https://*.smartschool.be";
-
-    // --------- random naam ----------
 
     function generateRandomName() {
       const adjectives = [
@@ -309,14 +384,23 @@
       const root = document.getElementById("app");
       root.innerHTML = "";
 
-      const title = document.createElement("h2");
+      const card = document.createElement("div");
+      card.className = "leaderboard-card";
+
+      const header = document.createElement("div");
+      header.className = "leaderboard-header";
+
+      const title = document.createElement("div");
+      title.className = "leaderboard-title";
       title.textContent = `Leaderboard ${payload.yearLabel || ""}`;
-      root.appendChild(title);
 
       const subtitle = document.createElement("div");
-      subtitle.className = "subtitle";
-      subtitle.textContent = `Jouw score (schooljaar): ${selfScore.toFixed(2)}% (${selfName})`;
-      root.appendChild(subtitle);
+      subtitle.className = "leaderboard-subtitle";
+      subtitle.textContent = `Jouw score (schooljaar): ${selfScore.toFixed(2)}% · ${selfName}`;
+
+      header.appendChild(title);
+      header.appendChild(subtitle);
+      card.appendChild(header);
 
       const tabs = document.createElement("div");
       tabs.className = "tabs";
@@ -343,18 +427,26 @@
           return;
         }
 
-        const list = document.createElement("ol");
-        board.forEach(entry => {
-          const li = document.createElement("li");
+        const list = document.createElement("ul");
+        list.className = "leaderboard-list";
 
-          const nameSpan = document.createElement("span");
-          nameSpan.className = "course-name";
+        board.forEach((entry, index) => {
+          const li = document.createElement("li");
+          li.className = "leaderboard-row";
+
+          const rank = document.createElement("div");
+          rank.className = "leaderboard-rank";
+          rank.textContent = index + 1;
+
+          const nameSpan = document.createElement("div");
+          nameSpan.className = "leaderboard-name";
           nameSpan.textContent = entry.display_name;
 
-          const scoreSpan = document.createElement("span");
-          scoreSpan.className = "course-score";
+          const scoreSpan = document.createElement("div");
+          scoreSpan.className = "leaderboard-score";
           scoreSpan.textContent = `${Number(entry.score).toFixed(2)}%`;
 
+          li.appendChild(rank);
           li.appendChild(nameSpan);
           li.appendChild(scoreSpan);
           list.appendChild(li);
@@ -377,13 +469,13 @@
         tabs.appendChild(btn);
       });
 
-      root.appendChild(tabs);
-      root.appendChild(listContainer);
+      card.appendChild(tabs);
+      card.appendChild(listContainer);
+      root.appendChild(card);
 
       renderListFor("year");
     }
 
-    // simpele statische newsfeed
     const NEWS_ITEMS = [
       {
         date: "2026-02-25",
@@ -430,8 +522,7 @@
       const data = event.data;
       if (!data || data.type !== "smartschool-leaderboard-data") return;
 
-      // payload: { yearId, yearLabel, globalAvg, evaluations }
-      const payload = data.payload;
+      const payload = data.payload; // { yearId, yearLabel, globalAvg, evaluations }
 
       const { userId, displayName } = getOrCreateLocalUser();
       const schoolYear = payload.yearId || null;
