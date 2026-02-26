@@ -123,10 +123,12 @@
     const SUPABASE_URL = "https://iqsshtqyhmqqttsxroiv.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlxc3NodHF5aG1xcXR0c3hyb2l2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5ODM1NDAsImV4cCI6MjA4NzU1OTU0MH0.z9t6ErFXoHOjMG22Z-EIvStBh4ysXXoG1MyZTdycCtA";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    const EXPECTED_PARENT_ORIGIN = "https://*.smartschool.be"; 
+    const EXPECTED_PARENT_ORIGIN = "https://*.smartschool.be";
+
+    // --------- random naam ----------
 
     function generateRandomName() {
-    const adjectives = [
+      const adjectives = [
         "Snelle", "Slimme", "Gekke", "Stille", "Magische", "Sterke", "Blije", "Stoere", "Luidruchtige",
         "Sappige", "Luie", "Verwarde", "Dansende", "Chagrijnige", "Epische", "Knettergekke",
         "Vliegende", "Machtige", "Knorrige", "Kleverige", "Grappige", "Slaaploze", "Bezige",
@@ -137,11 +139,9 @@
       const animals = [
         "Panda", "Leeuw", "Uil", "Vos", "Dolfijn", "Olifant", "Tijger", "Wolf", "Egel", "Aap",
         "Eend", "Kat", "Krokodil", "Pinguïn", "Beer", "Koe", "Wasbeer", "Giraffe", "Zebra",
-        
         "Koelkast", "Broodrooster", "Pizza", "Appeltaart", "Theepot", "Koffiekopje", "Sok", "Stoel",
         "Toilet", "Laptop", "Kussen", "Kaars", "Emmer", "Fiets", "Tandenborstel", "Banaan",
         "Spaghetti", "Lamp", "Kast", "Telefoon", "Gamecontroller", "Kaasblokje", "Wifi-router",
-        
         "Dokter", "Piratenkapitein", "Tovenaar", "Ninja", "Programmeur", "Dromer", "DJ", "Ridder",
         "Zwerver", "Student", "Bakker", "Barista", "Kabouter", "Superheld", "Cowboy", "Agent"
       ];
@@ -169,14 +169,18 @@
       return { userId, displayName };
     }
 
-    async function upsertScore({ userId, displayName, score, schoolYear }) {
+    async function upsertScore({ userId, displayName, scores, schoolYear }) {
+      const { yearScore, weekScore, monthScore } = scores;
+
       const { data, error } = await supabaseClient
         .from("leaderboard_entries")
         .upsert(
           {
             instance_id: userId,
             display_name: displayName,
-            score,
+            score: yearScore,
+            week_score: weekScore,
+            month_score: monthScore,
             school_year: schoolYear
           },
           { onConflict: "instance_id" }
@@ -229,21 +233,64 @@
       return new Date(date.getFullYear(), date.getMonth(), 1, 0, 0, 0, 0);
     }
 
-    async function fetchLeaderboardRange({ schoolYear, from, to }) {
+    function isSameWeek(date, ref) {
+      const d = new Date(date);
+      const r = new Date(ref);
+      const start = startOfWeek(r);
+      const end = new Date(start);
+      end.setDate(end.getDate() + 7);
+      return d >= start && d < end;
+    }
+
+    function isSameMonth(date, ref) {
+      const d = new Date(date);
+      const r = new Date(ref);
+      return d.getFullYear() === r.getFullYear() && d.getMonth() === r.getMonth();
+    }
+
+    function calcPeriodScoresFromEvaluations(evaluations, now = new Date()) {
+      let weekEarned = 0, weekMax = 0;
+      let monthEarned = 0, monthMax = 0;
+      let yearEarned = 0, yearMax = 0;
+
+      (evaluations || []).forEach(ev => {
+        const percent = typeof ev.percent === "number" ? ev.percent : Number(ev.percent);
+        if (Number.isNaN(percent)) return;
+
+        const earned = percent;
+        const max = 100;
+
+        yearEarned += earned;
+        yearMax += max;
+
+        if (isSameMonth(ev.date, now)) {
+          monthEarned += earned;
+          monthMax += max;
+        }
+        if (isSameWeek(ev.date, now)) {
+          weekEarned += earned;
+          weekMax += max;
+        }
+      });
+
+      return {
+        weekScore: weekMax > 0 ? (weekEarned / weekMax) * 100 : 0,
+        monthScore: monthMax > 0 ? (monthEarned / monthMax) * 100 : 0,
+        yearScore: yearMax > 0 ? (yearEarned / yearMax) * 100 : 0
+      };
+    }
+
+    async function fetchLeaderboardRange({ schoolYear, scoreField }) {
+      const field = scoreField || "score";
+
       let query = supabaseClient
         .from("leaderboard_entries")
-        .select("display_name, score, created_at")
-        .order("score", { ascending: false })
+        .select(`display_name, ${field}`)
+        .order(field, { ascending: false })
         .limit(10);
 
       if (schoolYear) {
         query = query.eq("school_year", schoolYear);
-      }
-      if (from) {
-        query = query.gte("created_at", from.toISOString());
-      }
-      if (to) {
-        query = query.lte("created_at", to.toISOString());
       }
 
       const { data, error } = await query;
@@ -251,7 +298,11 @@
         console.error("Supabase fetch error:", error);
         return [];
       }
-      return data || [];
+
+      return (data || []).map(row => ({
+        display_name: row.display_name,
+        score: row[field]
+      }));
     }
 
     function renderMultiLeaderboard({ payload, weekBoard, monthBoard, yearBoard, selfName, selfScore }) {
@@ -264,7 +315,7 @@
 
       const subtitle = document.createElement("div");
       subtitle.className = "subtitle";
-      subtitle.textContent = `Jouw score: ${selfScore.toFixed(2)}% (${selfName})`;
+      subtitle.textContent = `Jouw score (schooljaar): ${selfScore.toFixed(2)}% (${selfName})`;
       root.appendChild(subtitle);
 
       const tabs = document.createElement("div");
@@ -332,40 +383,7 @@
       renderListFor("year");
     }
 
-    window.addEventListener("message", async (event) => {
-      // if (event.origin !== EXPECTED_PARENT_ORIGIN) return;
-
-      const data = event.data;
-      if (!data || data.type !== "smartschool-leaderboard-data") return;
-
-      const payload = data.payload; // { yearId, yearLabel, globalAvg, courses }
-
-      const { userId, displayName } = getOrCreateLocalUser();
-      const score = Number(payload.globalAvg.toFixed(2));
-      const schoolYear = payload.yearId || null;
-
-      await upsertScore({ userId, displayName, score, schoolYear });
-
-      const now = new Date();
-      const weekStart = startOfWeek(now);
-      const monthStart = startOfMonth(now);
-
-      const [weekBoard, monthBoard, yearBoard] = await Promise.all([
-        fetchLeaderboardRange({ schoolYear, from: weekStart, to: now }),
-        fetchLeaderboardRange({ schoolYear, from: monthStart, to: now }),
-        fetchLeaderboardRange({ schoolYear, from: null, to: now })
-      ]);
-      
-      renderMultiLeaderboard({
-        payload,
-        weekBoard,
-        monthBoard,
-        yearBoard,
-        selfName: displayName,
-        selfScore: score
-      });
-    });
-    
+    // simpele statische newsfeed
     const NEWS_ITEMS = [
       {
         date: "2026-02-25",
@@ -405,6 +423,39 @@
     }
 
     renderNewsfeed();
+
+    window.addEventListener("message", async (event) => {
+      // if (event.origin !== EXPECTED_PARENT_ORIGIN) return;
+
+      const data = event.data;
+      if (!data || data.type !== "smartschool-leaderboard-data") return;
+
+      // payload: { yearId, yearLabel, globalAvg, evaluations }
+      const payload = data.payload;
+
+      const { userId, displayName } = getOrCreateLocalUser();
+      const schoolYear = payload.yearId || null;
+
+      const now = new Date();
+      const scores = calcPeriodScoresFromEvaluations(payload.evaluations || [], now);
+
+      await upsertScore({ userId, displayName, scores, schoolYear });
+
+      const [weekBoard, monthBoard, yearBoard] = await Promise.all([
+        fetchLeaderboardRange({ schoolYear, scoreField: "week_score" }),
+        fetchLeaderboardRange({ schoolYear, scoreField: "month_score" }),
+        fetchLeaderboardRange({ schoolYear, scoreField: "score" })
+      ]);
+
+      renderMultiLeaderboard({
+        payload,
+        weekBoard,
+        monthBoard,
+        yearBoard,
+        selfName: displayName,
+        selfScore: scores.yearScore
+      });
+    });
   </script>
 </body>
 </html>
