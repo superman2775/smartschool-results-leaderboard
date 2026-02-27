@@ -41,11 +41,39 @@
       margin-bottom: 8px;
     }
 
-    /* Leaderboard layout */
-    #app {
-      padding: 14px 16px;
+    /* Top navigation tabs (page level) */
+    .page-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 10px;
+      padding: 4px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+    }
+    .page-tabs button {
+      font-size: 0.8rem;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: none;
+      background: transparent;
+      color: #e5e7eb;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+    }
+    .page-tabs button:hover {
+      background: rgba(148, 163, 184, 0.25);
+      transform: translateY(-1px);
+    }
+    .page-tabs button.active {
+      background: #f97316;
+      color: #111827;
     }
 
+    /* Leaderboard layout */
+    #leaderboard-tab {
+      padding: 4px 4px 0;
+    }
     .leaderboard-card {
       border-radius: 16px;
       padding: 14px 16px;
@@ -54,7 +82,6 @@
       box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
       border: 1px solid rgba(255, 255, 255, 0.06);
     }
-
     .leaderboard-header {
       display: flex;
       justify-content: space-between;
@@ -62,13 +89,11 @@
       gap: 8px;
       margin-bottom: 10px;
     }
-
     .leaderboard-title {
       font-size: 1rem;
       font-weight: 600;
       letter-spacing: 0.02em;
     }
-
     .leaderboard-subtitle {
       font-size: 0.8rem;
       opacity: 0.8;
@@ -121,7 +146,11 @@
       margin-bottom: 6px;
       transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
     }
-
+    .leaderboard-row--month-top {
+      background: linear-gradient(90deg, rgba(248, 250, 252, 0.08), rgba(249, 115, 22, 0.35));
+      border-color: rgba(249, 115, 22, 0.9);
+      box-shadow: 0 12px 30px rgba(248, 113, 22, 0.5);
+    }
     .leaderboard-row:hover {
       background: rgba(30, 64, 175, 0.7);
       transform: translateY(-1px);
@@ -134,7 +163,6 @@
       width: 1.5rem;
       text-align: center;
     }
-
     .leaderboard-name {
       font-weight: 500;
       color: #e5e7eb;
@@ -142,11 +170,14 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-
     .leaderboard-score {
       font-variant-numeric: tabular-nums;
       color: #bbf7d0;
       font-weight: 500;
+    }
+    .leaderboard-name-badge {
+      margin-right: 4px;
+      font-weight: 600;
     }
 
     .empty-state {
@@ -156,6 +187,9 @@
     }
 
     /* Newsfeed */
+    #news-tab {
+      padding: 4px 4px 0;
+    }
     .news-item {
       font-size: 0.8rem;
       margin-bottom: 4px;
@@ -165,20 +199,98 @@
       margin-right: 6px;
       font-size: 0.75rem;
     }
+
+    /* Monthly quest tab */
+    #quest-tab {
+      padding: 4px 4px 0;
+    }
+    .quest-card {
+      border-radius: 16px;
+      padding: 14px 16px;
+      background: radial-gradient(circle at top, rgba(248, 113, 22, 0.20), transparent 55%),
+                  rgba(15, 23, 42, 0.96);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.65);
+      border: 1px solid rgba(248, 250, 252, 0.15);
+      font-size: 0.85rem;
+    }
+    .quest-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .quest-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(248, 113, 22, 0.18);
+      border: 1px solid rgba(248, 113, 22, 0.9);
+      font-size: 0.8rem;
+      margin-bottom: 8px;
+    }
+    .quest-badge span {
+      font-variant-numeric: tabular-nums;
+    }
+    .quest-list {
+      margin: 6px 0 0;
+      padding-left: 16px;
+      font-size: 0.8rem;
+    }
+    .quest-highlight {
+      color: #fed7aa;
+      font-weight: 500;
+    }
+    .quest-current {
+      margin-top: 6px;
+      font-size: 0.8rem;
+    }
   </style>
 </head>
 <body>
   <div class="page">
-    <div class="container" id="app">
-      <p class="empty-state">Wacht op gegevens van de Smartschool‑extensie…</p>
+    <!-- Page-level tabs -->
+    <div class="page-tabs">
+      <button id="tab-btn-leaderboard" class="active">Leaderboard</button>
+      <button id="tab-btn-news">News</button>
+      <button id="tab-btn-quest">Monthly Quest</button>
     </div>
 
-    <!-- Newsfeed -->
-    <div class="container" id="news">
+    <!-- Leaderboard tab -->
+    <div class="container" id="leaderboard-tab">
+      <div id="app">
+        <p class="empty-state">Wacht op gegevens van de Smartschool‑extensie…</p>
+      </div>
+    </div>
+
+    <!-- News tab -->
+    <div class="container" id="news-tab" style="display:none;">
       <h2>Newsfeed</h2>
       <div class="subtitle">Laatste updates & events</div>
       <div id="news-list">
         <p class="empty-state">Nog geen nieuws. Check later opnieuw.</p>
+      </div>
+    </div>
+
+    <!-- Monthly quest tab -->
+    <div class="container" id="quest-tab" style="display:none;">
+      <div class="quest-card" id="quest-card">
+        <div class="quest-title" id="quest-title">Monthly Quest</div>
+        <div class="quest-badge">
+          <span id="quest-badge-emoji">🎇</span>
+          <span id="quest-badge-name">Monthly Quest Winner</span>
+        </div>
+        <p class="subtitle" id="quest-description">
+          Aan het einde van elke maand krijgt de nummer 1 van het maand‑leaderboard een speciale badge
+          vóór zijn/haar naam. Je kunt meerdere badges stapelen, maar aan het begin van elk schooljaar
+          starten we opnieuw.
+        </p>
+        <ul class="quest-list">
+          <li>De winnaar is de speler met de hoogste <span class="quest-highlight">month score</span> op de laatste dag van de maand.</li>
+          <li>Elke gewonnen maand voegt één extra badge‑prefix voor je naam toe.</li>
+          <li>Alle badges worden gereset bij de start van een nieuw schooljaar.</li>
+        </ul>
+        <p class="quest-current" id="quest-current"></p>
       </div>
     </div>
 
@@ -201,6 +313,110 @@
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlxc3NodHF5aG1xcXR0c3hyb2l2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5ODM1NDAsImV4cCI6MjA4NzU1OTU0MH0.z9t6ErFXoHOjMG22Z-EIvStBh4ysXXoG1MyZTdycCtA";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const EXPECTED_PARENT_ORIGIN = "https://*.smartschool.be";
+
+    // Per-maand quest config
+    const MONTHLY_QUESTS = {
+      0:  { // January
+        name: "January Grind",
+        emoji: "❄️",
+        prefix: "❄️┃",
+        color: "#bfdbfe"
+      },
+      1:  { // February
+        name: "Focus February",
+        emoji: "💘",
+        prefix: "💘┃",
+        color: "#fecaca"
+      },
+      2:  { // March
+        name: "March Marathon",
+        emoji: "🍀",
+        prefix: "🍀┃",
+        color: "#bbf7d0"
+      },
+      3:  { // April
+        name: "April Ace",
+        emoji: "🌧️",
+        prefix: "🌧️┃",
+        color: "#bae6fd"
+      },
+      4:  { // May
+        name: "May Mastery",
+        emoji: "🌸",
+        prefix: "🌸┃",
+        color: "#fbcfe8"
+      },
+      5:  { // June
+        name: "June Finals",
+        emoji: "📚",
+        prefix: "📚┃",
+        color: "#fde68a"
+      },
+      6:  { // July
+        name: "Summer Scholar",
+        emoji: "☀️",
+        prefix: "☀️┃",
+        color: "#fed7aa"
+      },
+      7:  { // August
+        name: "August Comeback",
+        emoji: "🌅",
+        prefix: "🌅┃",
+        color: "#fed7aa"
+      },
+      8:  { // September
+        name: "Semester Start",
+        emoji: "📓",
+        prefix: "📓┃",
+        color: "#e5e7eb"
+      },
+      9:  { // October
+        name: "Spooky Study",
+        emoji: "🎃",
+        prefix: "🎃┃",
+        color: "#fed7aa"
+      },
+      10: { // November
+        name: "No‑Sleep November",
+        emoji: "🌙",
+        prefix: "🌙┃",
+        color: "#c7d2fe"
+      },
+      11: { // December
+        name: "Winter Warrior",
+        emoji: "🎄",
+        prefix: "🎄┃",
+        color: "#bbf7d0"
+      }
+    };
+
+    function getCurrentQuestConfig(date = new Date()) {
+      const month = date.getMonth();
+      return MONTHLY_QUESTS[month] || {
+        name: "Monthly Quest",
+        emoji: "🎇",
+        prefix: "🎇┃",
+        color: "#fed7aa"
+      };
+    }
+
+    function updateQuestUI() {
+      const cfg = getCurrentQuestConfig();
+      const title = document.getElementById("quest-title");
+      const badgeEmoji = document.getElementById("quest-badge-emoji");
+      const badgeName = document.getElementById("quest-badge-name");
+      const questCurrent = document.getElementById("quest-current");
+      const card = document.getElementById("quest-card");
+
+      title.textContent = `Monthly Quest – ${cfg.name}`;
+      badgeEmoji.textContent = cfg.emoji;
+      badgeName.textContent = `${cfg.name} Winner`;
+
+      card.style.borderColor = cfg.color;
+      card.style.boxShadow = "0 18px 40px rgba(0, 0, 0, 0.65)";
+
+      questCurrent.textContent = `Deze maand: "${cfg.name}". De nummer 1 van het maand‑leaderboard krijgt een "${cfg.emoji}"‑badge voor de naam.`;
+    }
 
     function generateRandomName() {
       const adjectives = [
@@ -244,6 +460,7 @@
       return { userId, displayName };
     }
 
+    // Upsert scores (badge_count management gebeurt server-side, bv. via cron-job aan het einde van de maand)
     async function upsertScore({ userId, displayName, scores, schoolYear }) {
       const { yearScore, weekScore, monthScore } = scores;
 
@@ -360,7 +577,7 @@
 
       let query = supabaseClient
         .from("leaderboard_entries")
-        .select(`display_name, ${field}`)
+        .select(`display_name, ${field}, badge_count`)
         .order(field, { ascending: false })
         .limit(10);
 
@@ -376,7 +593,8 @@
 
       return (data || []).map(row => ({
         display_name: row.display_name,
-        score: row[field]
+        score: row[field],
+        badge_count: row.badge_count || 0
       }));
     }
 
@@ -412,6 +630,7 @@
       ];
 
       const listContainer = document.createElement("div");
+      const questCfg = getCurrentQuestConfig();
 
       function renderListFor(tabId) {
         const tabDef = tabDefs.find(t => t.id === tabId);
@@ -434,13 +653,31 @@
           const li = document.createElement("li");
           li.className = "leaderboard-row";
 
+          // special color for top of month leaderboard
+          if (tabId === "month" && index === 0) {
+            li.classList.add("leaderboard-row--month-top");
+          }
+
           const rank = document.createElement("div");
           rank.className = "leaderboard-rank";
           rank.textContent = index + 1;
 
           const nameSpan = document.createElement("div");
           nameSpan.className = "leaderboard-name";
-          nameSpan.textContent = entry.display_name;
+
+          const badgeCount = entry.badge_count || 0;
+          if (badgeCount > 0) {
+            const badgeSpan = document.createElement("span");
+            badgeSpan.className = "leaderboard-name-badge";
+            const repeatCount = Math.max(1, Math.min(badgeCount, 12));
+            badgeSpan.style.color = questCfg.color;
+            badgeSpan.textContent = questCfg.prefix.repeat(repeatCount);
+            nameSpan.appendChild(badgeSpan);
+          }
+
+          const nameText = document.createElement("span");
+          nameText.textContent = entry.display_name;
+          nameSpan.appendChild(nameText);
 
           const scoreSpan = document.createElement("div");
           scoreSpan.className = "leaderboard-score";
@@ -515,6 +752,34 @@
     }
 
     renderNewsfeed();
+    updateQuestUI();
+
+    // page tabs
+    (function initPageTabs() {
+      const btnLeaderboard = document.getElementById("tab-btn-leaderboard");
+      const btnNews = document.getElementById("tab-btn-news");
+      const btnQuest = document.getElementById("tab-btn-quest");
+
+      const tabLeaderboard = document.getElementById("leaderboard-tab");
+      const tabNews = document.getElementById("news-tab");
+      const tabQuest = document.getElementById("quest-tab");
+
+      function activate(tab) {
+        btnLeaderboard.classList.toggle("active", tab === "leaderboard");
+        btnNews.classList.toggle("active", tab === "news");
+        btnQuest.classList.toggle("active", tab === "quest");
+
+        tabLeaderboard.style.display = tab === "leaderboard" ? "block" : "none";
+        tabNews.style.display = tab === "news" ? "block" : "none";
+        tabQuest.style.display = tab === "quest" ? "block" : "none";
+      }
+
+      btnLeaderboard.addEventListener("click", () => activate("leaderboard"));
+      btnNews.addEventListener("click", () => activate("news"));
+      btnQuest.addEventListener("click", () => activate("quest"));
+
+      activate("leaderboard");
+    })();
 
     window.addEventListener("message", async (event) => {
       // if (event.origin !== EXPECTED_PARENT_ORIGIN) return;
