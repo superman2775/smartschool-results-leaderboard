@@ -6,7 +6,6 @@ const SCHOOL_YEARS = [
   { id: "2024_2025", label: "2024–2025", start: "2024-09-01", end: "2025-08-31" }
 ];
 
-// VERVANG DIT door jouw echte GitHub Pages URL en origin
 const LEADERBOARD_URL = "https://superman2775.github.io/smartschool-results-leaderboard/website/index.html";
 const LEADERBOARD_ORIGIN = "https://superman2775.github.io";
 
@@ -64,18 +63,15 @@ function buildStats(raw, yearConfig) {
       const valueIsString = typeof graphic.value === "string";
       const valueStr = valueIsString ? graphic.value.trim() : "";
 
-      // string-waarden als "—" of "" nooit als score tellen
       const valueLooksNumber =
         valueIsString &&
         valueStr !== "—" &&
         valueStr !== "" &&
         !Number.isNaN(Number(valueStr));
 
-      // geldig als: echte numerieke value (percentage) én geen text-type
       const hasValue = valueIsNumber && graphic.type !== "text";
       const hasPoints = !!parsed;
 
-      // lege / tekstuele scores (bv. type:"text", value:"—") niet meetellen
       if (!hasValue && !hasPoints) {
         return;
       }
@@ -197,27 +193,24 @@ function calcYearMonthAllTime(raw, yearConfig, now = new Date()) {
   };
 }
 
-// compacte leaderboard-data
+// compacte leaderboard-data: nu ook losse evaluaties
 function buildLeaderboardPayload(stats) {
-  const courses = (stats.courses || []).map(c => ({
-    id: c.courseId,
-    name: c.courseName,
-    avgPercent: Number(c.avgPercent.toFixed(2)),
-    evaluations: (c.evaluations || []).map(e => ({
-      id: e.id,
-      name: e.name,
-      date: e.date,
-      percent: Number(e.percent.toFixed(2)),
-      color: e.color || null,
-      description: e.description || ""
-    }))
-  }));
+  const flatEvaluations = [];
+
+  (stats.courses || []).forEach(c => {
+    (c.evaluations || []).forEach(e => {
+      flatEvaluations.push({
+        date: e.date,
+        percent: Number(e.percent.toFixed(2))
+      });
+    });
+  });
 
   return {
     yearId: stats.yearId,
     yearLabel: stats.yearLabel,
     globalAvg: Number(stats.globalAvg.toFixed(2)),
-    courses
+    evaluations: flatEvaluations
   };
 }
 
@@ -335,59 +328,6 @@ function ensureStyles() {
       cursor: pointer;
       font-size: 0.8rem;
     }
-
-    #gradesPanel .courses-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 8px;
-    }
-    #gradesPanel .course {
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.1);
-      padding: 8px 10px;
-      background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
-    }
-    #gradesPanel .course-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      font-size: 0.9rem;
-      margin-bottom: 6px;
-    }
-    #gradesPanel .course-name {
-      font-weight: 600;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    #gradesPanel .course-avg {
-      font-size: 0.85rem;
-      padding: 2px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.25);
-      background: rgba(0,0,0,0.25);
-    }
-    #gradesPanel .course-avg--good { background: rgba(46,204,113,0.25); border-color: rgba(46,204,113,0.85); }
-    #gradesPanel .course-avg--ok { background: rgba(241,196,15,0.25); border-color: rgba(241,196,15,0.85); }
-    #gradesPanel .course-avg--bad { background: rgba(231,76,60,0.25); border-color: rgba(231,76,60,0.85); }
-    #gradesPanel .course-body {
-      font-size: 0.78rem;
-      max-height: 180px;
-      overflow: auto;
-    }
-    #gradesPanel .course-body ul {
-      padding-left: 14px;
-      margin: 0;
-    }
-    #gradesPanel .course-body li {
-      margin-bottom: 2px;
-      display: flex;
-      align-items: center;
-    }
-    #gradesPanel .course-body li span.dot {
-      margin-right: 7px;
-      font-size: 3rem;
-    }
   `;
   document.head.appendChild(style);
 }
@@ -497,6 +437,7 @@ function renderPanel(container, data) {
     const visible = iframeContainer.style.display !== "none";
     if (visible) {
       iframeContainer.style.display = "none";
+      leaderboardToggle.textContent = "Verberg leaderboard";
       leaderboardToggle.textContent = "Toon leaderboard";
     } else {
       iframeContainer.style.display = "block";
@@ -507,7 +448,7 @@ function renderPanel(container, data) {
           type: "smartschool-leaderboard-data",
           payload
         },
-        LEADERBOARD_ORIGIN
+        "*"
       );
     }
   });
@@ -515,68 +456,6 @@ function renderPanel(container, data) {
   leaderboardWrapper.appendChild(leaderboardToggle);
   leaderboardWrapper.appendChild(iframeContainer);
   container.appendChild(leaderboardWrapper);
-
-  // Vakken-grid
-  const grid = document.createElement("div");
-  grid.className = "courses-grid";
-
-  const colorMap = {
-    green: "#80dba6",
-    yellow: "#f1c40f",
-    red: "#e74c3c",
-    olive: "#3aa10b",
-    steel: "#95a5a6",
-    orange: "#e67e22"
-  };
-
-  data.courses.forEach(c => {
-    const div = document.createElement("div");
-    div.className = "course";
-
-    const header = document.createElement("div");
-    header.className = "course-header";
-
-    const nameSpan = document.createElement("span");
-    nameSpan.className = "course-name";
-    nameSpan.textContent = c.courseName || "Onbekend vak";
-
-    const avgBase = typeof c.avgPercent === "number" ? c.avgPercent : 0;
-    const cl = gradeClass(avgBase);
-    const avgSpan = document.createElement("span");
-    avgSpan.className = `course-avg course-avg--${cl}`;
-    avgSpan.textContent = `${avgBase.toFixed(1)}%`;
-
-    header.appendChild(nameSpan);
-    header.appendChild(avgSpan);
-    div.appendChild(header);
-
-    const body = document.createElement("div");
-    body.className = "course-body";
-    const list = document.createElement("ul");
-    (c.evaluations || []).forEach(e => {
-      const li = document.createElement("li");
-
-      const dot = document.createElement("span");
-      dot.className = "dot";
-      dot.textContent = "●";
-
-      const rawColor = e.color;
-      dot.style.color = colorMap[rawColor] || "#CCCCCC";
-
-      const text = document.createElement("span");
-      text.textContent = `${e.name}: ${e.percent}% (${e.description})`;
-
-      li.appendChild(dot);
-      li.appendChild(text);
-      list.appendChild(li);
-    });
-    body.appendChild(list);
-    div.appendChild(body);
-
-    grid.appendChild(div);
-  });
-
-  container.appendChild(grid);
 }
 
 async function loadFromStorage() {
