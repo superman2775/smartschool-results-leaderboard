@@ -314,80 +314,19 @@
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const EXPECTED_PARENT_ORIGIN = "https://*.smartschool.be";
 
-    // Per-maand quest config
     const MONTHLY_QUESTS = {
-      0:  { // January
-        name: "January Grind",
-        emoji: "❄️",
-        prefix: "❄️┃",
-        color: "#bfdbfe"
-      },
-      1:  { // February
-        name: "Focus February",
-        emoji: "💘",
-        prefix: "💘┃",
-        color: "#fecaca"
-      },
-      2:  { // March
-        name: "March Marathon",
-        emoji: "🍀",
-        prefix: "🍀┃",
-        color: "#bbf7d0"
-      },
-      3:  { // April
-        name: "April Ace",
-        emoji: "🌧️",
-        prefix: "🌧️┃",
-        color: "#bae6fd"
-      },
-      4:  { // May
-        name: "May Mastery",
-        emoji: "🌸",
-        prefix: "🌸┃",
-        color: "#fbcfe8"
-      },
-      5:  { // June
-        name: "June Finals",
-        emoji: "📚",
-        prefix: "📚┃",
-        color: "#fde68a"
-      },
-      6:  { // July
-        name: "Summer Scholar",
-        emoji: "☀️",
-        prefix: "☀️┃",
-        color: "#fed7aa"
-      },
-      7:  { // August
-        name: "August Comeback",
-        emoji: "🌅",
-        prefix: "🌅┃",
-        color: "#fed7aa"
-      },
-      8:  { // September
-        name: "Semester Start",
-        emoji: "📓",
-        prefix: "📓┃",
-        color: "#e5e7eb"
-      },
-      9:  { // October
-        name: "Spooky Study",
-        emoji: "🎃",
-        prefix: "🎃┃",
-        color: "#fed7aa"
-      },
-      10: { // November
-        name: "No‑Sleep November",
-        emoji: "🌙",
-        prefix: "🌙┃",
-        color: "#c7d2fe"
-      },
-      11: { // December
-        name: "Winter Warrior",
-        emoji: "🎄",
-        prefix: "🎄┃",
-        color: "#bbf7d0"
-      }
+      0:  { name: "New Year Challenge", emoji: "❄️", prefix: "❄️┃", color: "#bfdbfe" },
+      1:  { name: "Valentine Challenge", emoji: "💘", prefix: "💘┃", color: "#fecaca" }, 
+      2:  { name: "Spring Challenge", emoji: "🍀", prefix: "🍀┃", color: "#bbf7d0" }, 
+      3:  { name: "Rainy Day Challenge", emoji: "🌧️", prefix: "🌧️┃", color: "#bae6fd" }, 
+      4:  { name: "Flower Boost Challenge", emoji: "🌸", prefix: "🌸┃", color: "#fbcfe8" },
+      5:  { name: "July Exam Challenge", emoji: "📚", prefix: "📚┃", color: "#fde68a" }, 
+      6:  { name: "Vacation Challenge 1", emoji: "☀️", prefix: "☀️┃", color: "#fed7aa" }, 
+      7:  { name: "Vacation Challenge 2", emoji: "🌅", prefix: "🌅┃", color: "#fed7aa" }, 
+      8:  { name: "Back‑to‑School Challenge", emoji: "📓", prefix: "📓┃", color: "#e5e7eb" },
+      9:  { name: "Halloween Challenge", emoji: "🎃", prefix: "🎃┃", color: "#fed7aa" },
+      10: { name: "Cozy Nights Challenge", emoji: "🌙", prefix: "🌙┃", color: "#c7d2fe" },
+      11: { name: "Christmas Challenge", emoji: "🎄", prefix: "🎄┃", color: "#bbf7d0" }
     };
 
     function getCurrentQuestConfig(date = new Date()) {
