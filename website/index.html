@@ -28,7 +28,7 @@
       padding: 10px 12px;
       border-radius: 12px;
       background: rgba(5, 8, 21, 0.9);
-      border: 1px solid rgba(255,255,255,0.08);
+      border: 1px solid rgba(15, 23, 42, 0.9);
       margin-bottom: 12px;
     }
     h2 {
@@ -48,8 +48,8 @@
       margin-bottom: 10px;
       padding: 4px;
       border-radius: 999px;
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(51, 65, 85, 0.9);
     }
     .page-tabs button {
       font-size: 0.8rem;
@@ -62,12 +62,12 @@
       transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
     }
     .page-tabs button:hover {
-      background: rgba(148, 163, 184, 0.25);
+      background: rgba(37, 99, 235, 0.25);
       transform: translateY(-1px);
     }
     .page-tabs button.active {
-      background: #f97316;
-      color: #111827;
+      background: #1d4ed8;
+      color: #e5e7eb;
     }
 
     /* Leaderboard layout */
@@ -77,10 +77,10 @@
     .leaderboard-card {
       border-radius: 16px;
       padding: 14px 16px;
-      background: radial-gradient(circle at top, rgba(79, 70, 229, 0.2), transparent 55%),
-                  rgba(9, 9, 20, 0.9);
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
-      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: radial-gradient(circle at top, rgba(37, 99, 235, 0.25), transparent 60%),
+                  rgba(15, 23, 42, 0.96);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(30, 64, 175, 0.8);
     }
     .leaderboard-header {
       display: flex;
@@ -105,8 +105,8 @@
       margin: 4px 0 10px;
       padding: 4px;
       border-radius: 999px;
-      background: rgba(15, 23, 42, 0.75);
-      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(51, 65, 85, 0.9);
     }
     .tabs button {
       font-size: 0.75rem;
@@ -119,11 +119,11 @@
       transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
     }
     .tabs button:hover {
-      background: rgba(148, 163, 184, 0.25);
+      background: rgba(37, 99, 235, 0.25);
       transform: translateY(-1px);
     }
     .tabs button.active {
-      background: #6366f1;
+      background: #2563eb;
       color: #f9fafb;
     }
 
@@ -141,20 +141,21 @@
       gap: 8px;
       padding: 6px 8px;
       border-radius: 10px;
-      background: rgba(15, 23, 42, 0.7);
-      border: 1px solid rgba(148, 163, 184, 0.25);
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(51, 65, 85, 0.8);
       margin-bottom: 6px;
-      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease, border-color 0.15s ease;
     }
-    .leaderboard-row--month-top {
-      background: linear-gradient(90deg, rgba(248, 250, 252, 0.08), rgba(249, 115, 22, 0.35));
-      border-color: rgba(249, 115, 22, 0.9);
-      box-shadow: 0 12px 30px rgba(248, 113, 22, 0.5);
+    /* Highlight voor #1 in ELK leaderboard */
+    .leaderboard-row--top {
+      background: radial-gradient(circle at top left, rgba(59, 130, 246, 0.35), rgba(15, 23, 42, 0.95));
+      border-color: rgba(59, 130, 246, 0.95);
+      box-shadow: 0 12px 32px rgba(37, 99, 235, 0.7);
     }
     .leaderboard-row:hover {
-      background: rgba(30, 64, 175, 0.7);
+      background: rgba(15, 23, 42, 0.95);
       transform: translateY(-1px);
-      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.8);
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.9);
     }
 
     .leaderboard-rank {
@@ -172,7 +173,7 @@
     }
     .leaderboard-score {
       font-variant-numeric: tabular-nums;
-      color: #bbf7d0;
+      color: #bfdbfe;
       font-weight: 500;
     }
     .leaderboard-name-badge {
@@ -207,10 +208,10 @@
     .quest-card {
       border-radius: 16px;
       padding: 14px 16px;
-      background: radial-gradient(circle at top, rgba(248, 113, 22, 0.20), transparent 55%),
-                  rgba(15, 23, 42, 0.96);
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.65);
-      border: 1px solid rgba(248, 250, 252, 0.15);
+      background: radial-gradient(circle at top, rgba(37, 99, 235, 0.3), transparent 60%),
+                  rgba(15, 23, 42, 0.98);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(37, 99, 235, 0.9);
       font-size: 0.85rem;
     }
     .quest-title {
@@ -224,10 +225,11 @@
       gap: 4px;
       padding: 3px 8px;
       border-radius: 999px;
-      background: rgba(248, 113, 22, 0.18);
-      border: 1px solid rgba(248, 113, 22, 0.9);
+      background: rgba(37, 99, 235, 0.12);
+      border: 1px solid rgba(59, 130, 246, 0.9);
       font-size: 0.8rem;
       margin-bottom: 8px;
+      color: #dbeafe;
     }
     .quest-badge span {
       font-variant-numeric: tabular-nums;
@@ -238,7 +240,7 @@
       font-size: 0.8rem;
     }
     .quest-highlight {
-      color: #fed7aa;
+      color: #bfdbfe;
       font-weight: 500;
     }
     .quest-current {
@@ -299,7 +301,7 @@
         <a href="https://github.com/superman2775/smartschool-results-leaderboard/wiki/Privacy-Policy"
            target="_blank"
            rel="noopener noreferrer"
-           style="color:#9fc5ff; text-decoration:underline;">
+           style="color:#93c5fd; text-decoration:underline;">
           Privacy Policy / Privacyverklaring
         </a>
       </p>
@@ -316,13 +318,13 @@
 
     const MONTHLY_QUESTS = {
       0:  { name: "New Year Challenge", emoji: "❄️", prefix: "❄️┃", color: "#bfdbfe" },
-      1:  { name: "Valentine Challenge", emoji: "💘", prefix: "💘┃", color: "#fecaca" }, 
-      2:  { name: "Spring Challenge", emoji: "🍀", prefix: "🍀┃", color: "#bbf7d0" }, 
-      3:  { name: "Rainy Day Challenge", emoji: "🌧️", prefix: "🌧️┃", color: "#bae6fd" }, 
+      1:  { name: "Valentine Challenge", emoji: "💘", prefix: "💘┃", color: "#fecaca" },
+      2:  { name: "Spring Challenge", emoji: "🍀", prefix: "🍀┃", color: "#bbf7d0" },
+      3:  { name: "Rainy Day Challenge", emoji: "🌧️", prefix: "🌧️┃", color: "#bae6fd" },
       4:  { name: "Flower Boost Challenge", emoji: "🌸", prefix: "🌸┃", color: "#fbcfe8" },
-      5:  { name: "July Exam Challenge", emoji: "📚", prefix: "📚┃", color: "#fde68a" }, 
-      6:  { name: "Vacation Challenge 1", emoji: "☀️", prefix: "☀️┃", color: "#fed7aa" }, 
-      7:  { name: "Vacation Challenge 2", emoji: "🌅", prefix: "🌅┃", color: "#fed7aa" }, 
+      5:  { name: "July Exam Challenge", emoji: "📚", prefix: "📚┃", color: "#fde68a" },
+      6:  { name: "Vacation Challenge 1", emoji: "☀️", prefix: "☀️┃", color: "#fed7aa" },
+      7:  { name: "Vacation Challenge 2", emoji: "🌅", prefix: "🌅┃", color: "#fed7aa" },
       8:  { name: "Back‑to‑School Challenge", emoji: "📓", prefix: "📓┃", color: "#e5e7eb" },
       9:  { name: "Halloween Challenge", emoji: "🎃", prefix: "🎃┃", color: "#fed7aa" },
       10: { name: "Cozy Nights Challenge", emoji: "🌙", prefix: "🌙┃", color: "#c7d2fe" },
@@ -335,7 +337,7 @@
         name: "Monthly Quest",
         emoji: "🎇",
         prefix: "🎇┃",
-        color: "#fed7aa"
+        color: "#bfdbfe"
       };
     }
 
@@ -351,8 +353,8 @@
       badgeEmoji.textContent = cfg.emoji;
       badgeName.textContent = `${cfg.name} Winner`;
 
-      card.style.borderColor = cfg.color;
-      card.style.boxShadow = "0 18px 40px rgba(0, 0, 0, 0.65)";
+      card.style.borderColor = "#2563eb";
+      card.style.boxShadow = "0 18px 40px rgba(15, 23, 42, 0.9)";
 
       questCurrent.textContent = `Deze maand: "${cfg.name}". De nummer 1 van het maand‑leaderboard krijgt een "${cfg.emoji}"‑badge voor de naam.`;
     }
@@ -399,7 +401,6 @@
       return { userId, displayName };
     }
 
-    // Upsert scores (badge_count management gebeurt server-side, bv. via cron-job aan het einde van de maand)
     async function upsertScore({ userId, displayName, scores, schoolYear }) {
       const { yearScore, weekScore, monthScore } = scores;
 
@@ -424,8 +425,6 @@
       return data;
     }
 
-    // alleen via console gebruiken:
-    // updateDisplayName("NieuweNaam123")
     async function updateDisplayName(newName) {
       const userId = localStorage.getItem("ss_leaderboard_user_id");
       if (!userId) {
@@ -452,8 +451,8 @@
 
     function startOfWeek(d) {
       const date = new Date(d);
-      const day = date.getDay(); // 0 = zondag, 1 = maandag
-      const diff = (day === 0 ? -6 : 1) - day; // maandag als start
+      const day = date.getDay();
+      const diff = (day === 0 ? -6 : 1) - day;
       date.setHours(0, 0, 0, 0);
       date.setDate(date.getDate() + diff);
       return date;
@@ -592,9 +591,9 @@
           const li = document.createElement("li");
           li.className = "leaderboard-row";
 
-          // special color for top of month leaderboard
-          if (tabId === "month" && index === 0) {
-            li.classList.add("leaderboard-row--month-top");
+          // highlight top 1 in elke tab
+          if (index === 0) {
+            li.classList.add("leaderboard-row--top");
           }
 
           const rank = document.createElement("div");
@@ -609,7 +608,7 @@
             const badgeSpan = document.createElement("span");
             badgeSpan.className = "leaderboard-name-badge";
             const repeatCount = Math.max(1, Math.min(badgeCount, 12));
-            badgeSpan.style.color = questCfg.color;
+            badgeSpan.style.color = "#bfdbfe";
             badgeSpan.textContent = questCfg.prefix.repeat(repeatCount);
             nameSpan.appendChild(badgeSpan);
           }
@@ -693,7 +692,6 @@
     renderNewsfeed();
     updateQuestUI();
 
-    // page tabs
     (function initPageTabs() {
       const btnLeaderboard = document.getElementById("tab-btn-leaderboard");
       const btnNews = document.getElementById("tab-btn-news");
@@ -726,7 +724,7 @@
       const data = event.data;
       if (!data || data.type !== "smartschool-leaderboard-data") return;
 
-      const payload = data.payload; // { yearId, yearLabel, globalAvg, evaluations }
+      const payload = data.payload;
 
       const { userId, displayName } = getOrCreateLocalUser();
       const schoolYear = payload.yearId || null;
