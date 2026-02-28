@@ -52,6 +52,7 @@
       border: 1px solid rgba(51, 65, 85, 0.9);
     }
     .page-tabs button {
+      position: relative;
       font-size: 0.8rem;
       padding: 6px 14px;
       border-radius: 999px;
@@ -68,6 +69,23 @@
     .page-tabs button.active {
       background: #1d4ed8;
       color: #e5e7eb;
+    }
+    .tab-badge {
+      position: absolute;
+      top: -3px;
+      right: -3px;
+      min-width: 14px;
+      height: 14px;
+      padding: 0 4px;
+      border-radius: 999px;
+      background: #ef4444;
+      color: #f9fafb;
+      font-size: 0.65rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.95);
     }
 
     /* Leaderboard layout */
@@ -254,8 +272,14 @@
     <!-- Page-level tabs -->
     <div class="page-tabs">
       <button id="tab-btn-leaderboard" class="active">Leaderboard</button>
-      <button id="tab-btn-news">News</button>
-      <button id="tab-btn-quest">Monthly Quest</button>
+      <button id="tab-btn-news">
+        News
+        <span id="badge-news" class="tab-badge" style="display:none;"></span>
+      </button>
+      <button id="tab-btn-quest">
+        Monthly Quest
+        <span id="badge-quest" class="tab-badge" style="display:none;"></span>
+      </button>
     </div>
 
     <!-- Leaderboard tab -->
@@ -316,6 +340,11 @@
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const EXPECTED_PARENT_ORIGIN = "https://*.smartschool.be";
 
+    const STORAGE_KEYS = {
+      LAST_NEWS_DATE: "ss_lb_last_news_date",
+      LAST_QUEST_MONTH: "ss_lb_last_quest_month"
+    };
+
     const MONTHLY_QUESTS = {
       0:  { name: "New Year Challenge", emoji: "❄️", prefix: "❄️┃", color: "#bfdbfe" },
       1:  { name: "Valentine Challenge", emoji: "💘", prefix: "💘┃", color: "#fecaca" },
@@ -330,6 +359,29 @@
       10: { name: "Cozy Nights Challenge", emoji: "🌙", prefix: "🌙┃", color: "#c7d2fe" },
       11: { name: "Christmas Challenge", emoji: "🎄", prefix: "🎄┃", color: "#bbf7d0" }
     };
+
+    const NEWS_ITEMS = [
+      {
+        id: "2026-02-27-quest",
+        date: "2026-02-27",
+        text: "Monthly quest toegevoegd, kleine update met bugfixes."
+      },
+      {
+        id: "2026-02-25-playtest",
+        date: "2026-02-25",
+        text: "Eerste playtest voor testers."
+      },
+      {
+        id: "2026-02-24-nicknames",
+        date: "2026-02-24",
+        text: "Random nicknames toegevoegd om ongepaste namen te vermijden."
+      },
+      {
+        id: "2026-02-23-first-test",
+        date: "2026-02-23",
+        text: "Eerste test versie van het Smartschool Results Leaderboard is live."
+      }
+    ];
 
     function getCurrentQuestConfig(date = new Date()) {
       const month = date.getMonth();
@@ -357,6 +409,49 @@
       card.style.boxShadow = "0 18px 40px rgba(15, 23, 42, 0.9)";
 
       questCurrent.textContent = `Deze maand: "${cfg.name}". De nummer 1 van het maand‑leaderboard krijgt een "${cfg.emoji}"‑badge voor de naam.`;
+    }
+
+    function updateTabBadgesInitial() {
+      // NEWS badge: op basis van laatste news-item datum / id
+      const latestNewsId = NEWS_ITEMS[0]?.id;
+      const badgeNews = document.getElementById("badge-news");
+      const lastNewsSeen = localStorage.getItem(STORAGE_KEYS.LAST_NEWS_DATE);
+
+      if (latestNewsId && lastNewsSeen !== latestNewsId) {
+        badgeNews.style.display = "inline-flex";
+        badgeNews.textContent = "●";
+      } else {
+        badgeNews.style.display = "none";
+      }
+
+      // QUEST badge: 1 badge per nieuwe maand die je nog niet hebt gezien
+      const now = new Date();
+      const monthKey = `${now.getFullYear()}-${now.getMonth()}`;
+      const lastQuestSeen = localStorage.getItem(STORAGE_KEYS.LAST_QUEST_MONTH);
+      const badgeQuest = document.getElementById("badge-quest");
+
+      if (lastQuestSeen !== monthKey) {
+        badgeQuest.style.display = "inline-flex";
+        badgeQuest.textContent = "●";
+      } else {
+        badgeQuest.style.display = "none";
+      }
+    }
+
+    function markNewsAsRead() {
+      const latestNewsId = NEWS_ITEMS[0]?.id;
+      if (!latestNewsId) return;
+      localStorage.setItem(STORAGE_KEYS.LAST_NEWS_DATE, latestNewsId);
+      const badgeNews = document.getElementById("badge-news");
+      badgeNews.style.display = "none";
+    }
+
+    function markQuestAsRead() {
+      const now = new Date();
+      const monthKey = `${now.getFullYear()}-${now.getMonth()}`;
+      localStorage.setItem(STORAGE_KEYS.LAST_QUEST_MONTH, monthKey);
+      const badgeQuest = document.getElementById("badge-quest");
+      badgeQuest.style.display = "none";
     }
 
     function generateRandomName() {
@@ -651,25 +746,6 @@
       renderListFor("year");
     }
 
-    const NEWS_ITEMS = [
-      {
-        date: "2026-02-27",
-        text: "Monthly quest toegevoegd, kleine update met bugfixes."
-      },
-      {
-        date: "2026-02-25",
-        text: "Eerste playtest voor testers."
-      },
-      {
-        date: "2026-02-24",
-        text: "Random nicknames toegevoegd om ongepaste namen te vermijden."
-      },
-      {
-        date: "2026-02-23",
-        text: "Eerste test versie van het Smartschool Results Leaderboard is live."
-      }
-    ];
-
     function renderNewsfeed() {
       const list = document.getElementById("news-list");
       list.innerHTML = "";
@@ -695,6 +771,7 @@
 
     renderNewsfeed();
     updateQuestUI();
+    updateTabBadgesInitial();
 
     (function initPageTabs() {
       const btnLeaderboard = document.getElementById("tab-btn-leaderboard");
@@ -713,6 +790,13 @@
         tabLeaderboard.style.display = tab === "leaderboard" ? "block" : "none";
         tabNews.style.display = tab === "news" ? "block" : "none";
         tabQuest.style.display = tab === "quest" ? "block" : "none";
+
+        if (tab === "news") {
+          markNewsAsRead();
+        }
+        if (tab === "quest") {
+          markQuestAsRead();
+        }
       }
 
       btnLeaderboard.addEventListener("click", () => activate("leaderboard"));
