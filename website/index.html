@@ -362,6 +362,11 @@
 
     const NEWS_ITEMS = [
       {
+        id: "2026-03-14-leaderboard-range",
+        date: "2026-03-14",
+        text: "Het aantal gebruikers op het leaderboard zal nu vergroot worden, zodat je alle gebruikers kan zien. Dit is een klein experiment en kan later nog aangepast worden."
+      },
+      {
         id: "2026-02-28-notifications",
         date: "2026-02-28",
         text: "Meldingen toegevoegd voor nieuws."
@@ -617,7 +622,7 @@
         .from("leaderboard_entries")
         .select(`display_name, ${field}, badge_count`)
         .order(field, { ascending: false })
-        .limit(10);
+        .limit(10000000000000);
 
       if (schoolYear) {
         query = query.eq("school_year", schoolYear);
